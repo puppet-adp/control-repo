@@ -7,6 +7,7 @@ HOSTS:
       - dashboard
       - database
       - agent
+    dist: trusty
     platform: el-7-x86_64
     box: 'puppetlabs/centos-7.2-64-nocm'
     hypervisor: vagrant
