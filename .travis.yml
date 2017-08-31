@@ -14,7 +14,9 @@ matrix:
     env:
       # - USERNAME='WhatsARanjit'
       - PUPPET_VERSION=4.10.4
+      - BEAKER_set=docker/centos-7
     script: bundle exec rake beaker
+    services: docker
     sudo: required
 notifications:
   email: false
