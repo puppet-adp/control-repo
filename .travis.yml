@@ -4,6 +4,10 @@ language: ruby
 cache: bundler
 dist: trusty
 before_install:
+  # https://github.com/travis-ci/travis-ci/issues/5831
+  - "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc"
+  - gem uninstall -aIx bundler
+  - gem install bundler
   - gem update bundler
 env:
 # - USERNAME='WhatsARanjit'
