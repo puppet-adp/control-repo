@@ -1,6 +1,4 @@
-ENV['RUBYLIB'] = nil
-require 'beaker-rspec/spec_helper'
-require 'beaker-rspec/helpers/serverspec'
+require 'beaker-rspec'
 
 control_repo_name = ENV['USERNAME'] ? "#{ENV['USERNAME']}-control-repo" : 'control-repo'
 
