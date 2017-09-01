@@ -1,22 +1,14 @@
----
+sudo: false
 language: ruby
-sudo: required
-services: docker
-before_script:
-  - 'sudo service docker restart'
-#script:
-#  - 'bundle exec rake validate'
-#  - 'bundle exec rake lint'
-#  - 'bundle exec rake spec'
-matrix:
-  include:
-    - rvm: '2.1.9'
-      dist: trusty
-      env:
-      # - USERNAME='WhatsARanjit'
-        - PUPPET_VERSION=4.10.4
-        - BEAKER_debug=true
-        - BEAKER_set=docker/centos-7
-      script: 'bundle exec rake beaker'
-notifications:
-  email: false
+cache: bundler
+dist: trusty
+before_install:
+  - unset RUBYLIB
+  - gem update bundler
+env:
+# - USERNAME='WhatsARanjit'
+  - PUPPET_VERSION=4.10.4
+rvm:
+  - 2.1.9
+script:
+  - 'bundle exec rake beaker'`---
