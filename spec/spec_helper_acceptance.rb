@@ -1,5 +1,13 @@
-#! /usr/bin/env ruby -S rspec
 require 'beaker-rspec'
+
+RSpec.configure do |c|
+  # Readable test descriptions
+  c.formatter = :documentation
+
+  # Configure all nodes in nodeset
+  c.before :suite do
+  end
+end
 
 control_repo_name = ENV['USERNAME'] ? "#{ENV['USERNAME']}-control-repo" : 'control-repo'
 
