@@ -1,3 +1,4 @@
+#! /usr/bin/env ruby -S rspec
 require 'beaker-rspec'
 
 control_repo_name = ENV['USERNAME'] ? "#{ENV['USERNAME']}-control-repo" : 'control-repo'

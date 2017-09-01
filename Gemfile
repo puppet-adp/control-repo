@@ -1,39 +1,74 @@
-source ENV['GEM_SOURCE'] || 'https://rubygems.org'
+source ENV['GEM_SOURCE'] || "https://rubygems.org"
 
-def location_from_env(env, default_location = [])
-  if location = ENV[env]
-    if location =~ /^((?:git|https?)[:@][^#]*)#(.*)/
-      [{ :git => $1, :branch => $2, :require => false }]
-    elsif location =~ /^file:\/\/(.*)/
-      ['>= 0', { :path => File.expand_path($1), :require => false }]
-    else
-      [location, { :require => false }]
-    end
+# Determines what type of gem is requested based on place_or_version.
+def gem_type(place_or_version)
+  if place_or_version =~ /^git:/
+    :git
+  elsif place_or_version =~ /^file:/
+    :file
   else
-    default_location
+    :gem
   end
 end
 
-gem 'puppet', *location_from_env('PUPPET_GEM_VERSION')
-gem 'facter', *location_from_env('FACTER_GEM_VERSION')
-gem 'puppetlabs_spec_helper', '~> 2.3', '>= 2.3.2'
-gem 'bundler', '~> 1.15', '>= 1.15.4'
-gem 'vagrant', '~> 1.5'
+# Find a location or specific version for a gem. place_or_version can be a
+# version, which is most often used. It can also be git, which is specified as
+# `git://somewhere.git#branch`. You can also use a file source location, which
+# is specified as `file://some/location/on/disk`.
+def location_for(place_or_version, fake_version = nil)
+  if place_or_version =~ /^(git[:@][^#]*)#(.*)/
+    [fake_version, { :git => $1, :branch => $2, :require => false }].compact
+  elsif place_or_version =~ /^file:\/\/(.*)/
+    ['>= 0', { :path => File.expand_path($1), :require => false }]
+  else
+    [place_or_version, { :require => false }]
+  end
+end
 
-# https://rubygems.org/gems/beaker-rspec/versions/6.1.0
-gem 'beaker-rspec', '6.1.0'
-gem 'beaker', '~> 3.0'
-gem 'rspec', '~> 3.0'
-gem 'serverspec', '~> 2'
-gem 'specinfra', '~> 2'
+# Used for gem conditionals
+supports_windows = false
+ruby_version_segments = Gem::Version.new(RUBY_VERSION.dup).segments
+minor_version = "#{ruby_version_segments[0]}.#{ruby_version_segments[1]}"
 
-# https://rubygems.org/gems/puppetlabs_spec_helper/versions/2.3.2
-gem 'mocha', '~> 1.0'
-gem 'puppet-lint', '~> 2.0'
-gem 'puppet-syntax', '~> 2.0'
-gem 'rspec-puppet', '~> 2.0'
+group :development do
+  gem "puppet-module-posix-default-r#{minor_version}",    :require => false, :platforms => "ruby"
+  gem "puppet-module-win-default-r#{minor_version}",      :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
+  gem "puppet-module-posix-dev-r#{minor_version}",        :require => false, :platforms => "ruby"
+  gem "puppet-module-win-dev-r#{minor_version}", '0.0.7', :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
+  gem "json_pure", '<= 2.0.1',                            :require => false if Gem::Version.new(RUBY_VERSION.dup) < Gem::Version.new('2.0.0')
+  gem "fast_gettext", '1.1.0',                            :require => false if Gem::Version.new(RUBY_VERSION.dup) < Gem::Version.new('2.1.0')
+  gem "fast_gettext",                                     :require => false if Gem::Version.new(RUBY_VERSION.dup) >= Gem::Version.new('2.1.0')
+end
 
-# https://rubygems.org/gems/beaker-pe
-gem 'beaker-pe', '1.22.0'
-gem 'beaker-answers', '~> 0.0'
-gem 'stringify-hash', '~> 0.0.0'
+group :system_tests do
+  gem "puppet-module-posix-system-r#{minor_version}",                            :require => false, :platforms => "ruby"
+  gem "puppet-module-win-system-r#{minor_version}",                              :require => false, :platforms => ["mswin", "mingw", "x64_mingw"]
+  gem "beaker", *location_for(ENV['BEAKER_VERSION'] || '>= 3')                  
+  gem "beaker-pe",                                                               :require => false
+  gem "beaker-rspec", *location_for(ENV['BEAKER_RSPEC_VERSION'])                
+  gem "beaker-hostgenerator", *location_for(ENV['BEAKER_HOSTGENERATOR_VERSION'])
+  gem "beaker-abs", *location_for(ENV['BEAKER_ABS_VERSION'] || '~> 0.1')        
+  gem "puppet-blacksmith", '~> 3.4',                                             :require => false
+end
+
+gem 'puppet', *location_for(ENV['PUPPET_GEM_VERSION'])
+
+# Only explicitly specify Facter/Hiera if a version has been specified.
+# Otherwise it can lead to strange bundler behavior. If you are seeing weird
+# gem resolution behavior, try setting `DEBUG_RESOLVER` environment variable
+# to `1` and then run bundle install.
+gem 'facter', *location_for(ENV['FACTER_GEM_VERSION']) if ENV['FACTER_GEM_VERSION']
+gem 'hiera', *location_for(ENV['HIERA_GEM_VERSION']) if ENV['HIERA_GEM_VERSION']
+
+
+# Evaluate Gemfile.local if it exists
+if File.exists? "#{__FILE__}.local"
+  eval(File.read("#{__FILE__}.local"), binding)
+end
+
+# Evaluate ~/.gemfile if it exists
+if File.exists?(File.join(Dir.home, '.gemfile'))
+  eval(File.read(File.join(Dir.home, '.gemfile')), binding)
+end
+
+# vim:ft=ruby
