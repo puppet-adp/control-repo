@@ -1,5 +1,4 @@
 #! /usr/bin/env ruby -S rspec
-require 'bundler/setup'
 require 'beaker-rspec'
 
 RSpec.configure do |c|
