@@ -2,15 +2,14 @@
 sudo: false
 language: ruby
 cache: bundler
-dist: trusty
 before_install:
-  - unset RUBYLIB
   - gem update bundler
-env:
-# - USERNAME='WhatsARanjit'
-  - PUPPET_VERSION=4.10.4
-  - BEAKER_debug=true
-rvm:
-  - 2.1.9
-script:
-  - 'bundle exec rake beaker'
+matrix:
+  include:
+    - rvm: '2.1.9'
+      dist: trusty
+      env:
+      # - USERNAME='WhatsARanjit'
+        - PUPPET_VERSION=4.10.4 BEAKER_debug=true
+      script:
+        - 'bundle exec rake beaker'
