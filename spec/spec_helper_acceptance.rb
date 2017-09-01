@@ -1,3 +1,4 @@
+#! /usr/bin/env ruby -S rspec
 require 'beaker-rspec'
 
 RSpec.configure do |c|
