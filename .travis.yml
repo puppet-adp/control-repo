@@ -11,7 +11,9 @@ matrix:
   include:
   - rvm: 2.3.1
     dist: trusty
-    env: PUPPET_INSTALL_TYPE=agent BEAKER_debug=true BEAKER_set=docker/centos-7
+    env:
+#     - USERNAME=WhatsARanjit
+      - PUPPET_INSTALL_TYPE=agent BEAKER_debug=true BEAKER_set=docker/centos-7
     script: bundle exec rake beaker
     services: docker
     sudo: required
