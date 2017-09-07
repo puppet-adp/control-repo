@@ -1,4 +1,4 @@
-#! /usr/bin/env ruby -S rspec
+#!/usr/bin/env ruby
 require 'beaker-rspec'
 
 RSpec.configure do |c|
@@ -24,6 +24,8 @@ hosts.each do |host|
 
   if host['roles'].include?('master')
     install_pe_on(host, pe_opts)
+    on host, 'echo \'puppetlabs\' | /opt/puppetlabs/bin/puppet-access login -l 0 admin'
+    on host, '/opt/puppetlabs/bin/puppet-code deploy production -w'
   else
     install_puppet_agent_on(host)
   end
