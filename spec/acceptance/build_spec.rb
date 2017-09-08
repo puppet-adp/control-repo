@@ -11,7 +11,3 @@ end
     it { should be_listening }
   end
 end
-
-describe command('puppet plugin download') do
-  its(:exit_status) { should eq 0 }
-end
