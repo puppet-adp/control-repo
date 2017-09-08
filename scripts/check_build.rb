@@ -25,8 +25,12 @@ class Build
         'User-Agent' => 'Travis WhatsARanjit',
       }
       raw = do_https(res['Location'], '', headers)
-      puts res['Location']
       puts raw.body
+    elsif res.code == '200'
+      json = JSON.parse(res.body)
+      puts json['log']['body']
+    else
+      raise res.body
     end
   end
 

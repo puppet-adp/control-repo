@@ -20,6 +20,7 @@ pe_opts = {
     'puppet_enterprise::profile::master::r10k_remote'                 => "https://github.com/puppet-adp/#{control_repo_name}",
   }
 }
+
 hosts.each do |host|
 
   if host['roles'].include?('master')
