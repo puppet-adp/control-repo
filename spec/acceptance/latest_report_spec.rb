@@ -22,4 +22,3 @@ describe 'Pulling latest reports via API' do
     end
   end
 end
-
